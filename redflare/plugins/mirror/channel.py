@@ -104,9 +104,7 @@ class RHNSatelliteChannel(object):
             
         # clean up files that aren't in packages
         for file in os.listdir(self.local_dir):
-            if file not in self.synced_files:
-                if file == 'repodata' or file == 'headers':
-                    pass
+            if file not in self.synced_files and file.endswith('.rpm'):
                 log.debug("cleanup: %s" % file)
                 os.remove(os.path.join(self.local_dir, file))
                 
