@@ -182,17 +182,17 @@ class syncCommand(CementCommand):
                     
         # finally, create the repo
         if run_createrepo:
-            log.debug("createrepo: %s" % local_chan_dir)
+            log.info("running createrepo: %s" % local_chan_dir)
             os.system("%s %s" % (self.config['createrepo_path'], local_chan_dir))
         if run_yumarch:
-            log.debug("yum-arch: %s" % local_chan_dir)
+            log.info("running yum-arch: %s" % local_chan_dir)
             os.system("%s %s" % (self.config['yumarch_path'], local_chan_dir))
             
         # clean up files that aren't in packages
         for file in os.listdir(local_chan_dir):
             if file not in downloaded_files:
                 log.debug("cleanup: os.remove('%s')" % file)
-                os.remove(file)
+                os.remove(os.path.join(local_chan_dir, file))
         
     def run(self):
         if len(self.cli_args) >= 3:
