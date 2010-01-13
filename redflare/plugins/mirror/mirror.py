@@ -59,7 +59,8 @@ def validate_config_hook(*args, **kwargs):
         
         if not os.path.exists(config['mirror_dir']):
             os.makedirs(config['mirror_dir'])
-                    
+           
+
 @register_command(name='sync', namespace='mirror')
 class syncCommand(CementCommand):
     config = namespaces['mirror'].config

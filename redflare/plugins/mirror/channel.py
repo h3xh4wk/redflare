@@ -94,10 +94,10 @@ class RHNSatelliteChannel(object):
                 self._fast_sync_package(package)
     
          # finally, create the repo
-        if self.run_createrepo:
+        if len(self.synced_files) > 0 and self.run_createrepo:
             log.info("running createrepo: %s" % self.label)
             os.system("%s %s" % (self.config['createrepo_path'], self.local_dir))
-        if self.run_yumarch:
+        if len(self.synced_files) > 0 and self.run_yumarch:
             log.info("running yum-arch: %s" % self.label)
             os.system("%s %s" % (self.config['yumarch_path'], self.local_dir))
             
