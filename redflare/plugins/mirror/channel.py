@@ -97,9 +97,11 @@ class RHNSatelliteChannel(object):
         # finally, create the repo
         if self.modified  and self.run_createrepo:
             log.info("running createrepo: %s" % self.label)
+            self.synced_files.append('repodata')
             os.system("%s %s" % (self.config['createrepo_path'], self.local_dir))
         if self.modified > 0 and self.run_yumarch:
             log.info("running yum-arch: %s" % self.label)
+            self.synced_files.append('headers')
             os.system("%s %s" % (self.config['yumarch_path'], self.local_dir))
             
         # clean up files that aren't in packages
