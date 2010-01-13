@@ -1,0 +1,29 @@
+DEVELOPMENT:
+
+Redflare is built on Cement, but is currently built against the development
+version.  Therefore, you will also need to Git clone and install Cement
+and the 'clibasic' plugin from cement-plugins on github:
+
+    * git://github.com/derks/cement.git
+    * git://github.com/derks/cement-plugins.git
+    
+Then:    
+    
+$ virtualenv ~/devel/env/redflare --no-site-packages
+
+$ source ~/devel/env/redflare/bin/activate
+
+$ git clone git://github.com/derks/redflare.git
+
+$ cd redflare
+
+$ python setup.py develop
+
+
+PRODUCTION:
+
+Redflare is currently in development/beta, and does not have a proper path
+for production usage.  That said, a source install of the git checkout
+will work.
+
+$ sudo python setup.py install

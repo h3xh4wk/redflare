@@ -3,8 +3,6 @@
 import sys, os
 import re
 import xmlrpclib
-import urllib2
-import hashlib
 
 from cement import namespaces
 from cement.core.exc import CementConfigError, CementArgumentError
@@ -15,8 +13,10 @@ from cement.core.command import CementCommand, register_command
 from cement.core.plugin import CementPlugin, register_plugin
 from cement.helpers.cache.simple_cache import SimpleCache
 
+from redflare import user_cache
 from redflare.appmain import VERSION, BANNER
 from redflare.plugins.redflare_core.proxy import RHNSatelliteProxy
+from redflare.plugins.mirror.channel import RHNSatelliteChannel
 
 log = get_logger(__name__)
 
@@ -67,132 +67,25 @@ class syncCommand(CementCommand):
     def __init__(self, *args):
         CementCommand.__init__(self, *args)
         self.proxy = RHNSatelliteProxy()
+        
         if self.cli_opts.user:
-            self.proxy.get_session(use_cache=False)
-        else:
-            self.proxy.get_session()    
-        
-    def fetch_file(self, channel, package_id, local_path):
-        log.info("fetching %s/%s ...." % (channel, p['file']))
-        url = self.proxy.call('packages.getPackageUrl', package_id)
-        f = open(local_path, 'w')
-        data = urllib2.urlopen(url).read()
-        f.write(data)
-        f.close()
-        
-    def _slow_mirror(self, package, channel, local_chan_dir):
-        # this is significantly slower
-        p = self.proxy.call('packages.getDetails', package['id'])
-        p_full_path = os.path.join(local_chan_dir, p['file'])
-        log.debug('processing %s/%s' % (channel, p['file']))
-        
-        if os.path.exists(p_full_path):
-            log.info('verifying %s/%s' % (channel, p['file']))
-            # fetch the file if md5 mismatch, and then re-verify
-            count = 0
-            while count < 3:
-                md5 = hashlib.md5(open(p_full_path).read()).hexdigest()
-                if md5 == p['md5sum']:
-                    break
-                else:
-                    self.fetch_file(channel, p['id'], p_full_path)
-                    count += 1
-                if count >= 3:
-                    log.error('failed to download %s/%s' % \
-                        (channel, p['file']))   
-        else:
-            # fetch the file cause it doesn't exist
-            self.fetch_file(channel, p['id'], p_full_path)
-                    
-            count = 0
-            while count < 3:
-                md5 = hashlib.md5(open(p_full_path).read()).hexdigest()
-                if md5 == p['md5sum']:
-                    break
-                else:
-                    self.fetch_file(channel, p['id'], p_full_path)
-                    count += 1
-                if count >= 3:
-                    log.error('failed to download %s/%s' % \
-                        (channel, p['file']))
+            self.proxy.get_session(use_cache=False)  
     
-    
-    def _fast_mirror(self, package, channel, local_chan_dir):
-        # this is significantly faster
-        p_full_name = "%s-%s-%s.%s.rpm" % (
-            package['name'], 
-            package['version'], package['release'], 
-            package['arch_label']
-            )
-        p_full_path = os.path.join(local_chan_dir, p_full_name)
-        log.debug('processing %s/%s' % (channel, p_full_name))
-        
-        if not os.path.exists(p_full_path):
-            log.info("fetching %s/%s ...." % (channel, p_full_name))
-            url = self.proxy.call('packages.getPackageUrl', package['id'])
-            f = open(p_full_path, 'w')
-            data = urllib2.urlopen(url).read()
-            f.write(data)
-            f.close()
-    
-        
     def mirror_channel(self, channel, path):
-        run_createrepo = True
-        run_yumarch = False
-        only_latest = True
-        downloaded_files = []
-        
-        # base mirror config
-        if self.config.has_key('run_createrepo'):
-            run_createrepo = self.config['run_createrepo']
-        if self.config.has_key('run_yumarch'):
-            run_yumarch = self.config['run_yumarch']
-        if self.config.has_key('only_latest'):
-            only_latest = self.config['only_latest']
-        
-        # per channel config
-        if self.config['channels'][channel].has_key('run_createrepo'):
-            run_createrepo = self.config['channels'][channel]['run_createrepo']
-        if self.config['channels'][channel].has_key('run_yumarch'):
-            run_yumarch = self.config['channels'][channel]['run_yumarch']
-        if self.config['channels'][channel].has_key('only_latest'):
-            only_latest = self.config['channels'][channel]['only_latest']
-        
-        # only download the latest package, not all
-        if only_latest:
-            packages = self.proxy.call(
-                'channel.software.listLatestPackages', channel)
-        else:
-            packages = self.proxy.call(\
-                'channel.software.listAllPackages', channel)
-                    
-        local_chan_dir = re.sub('\%\(mirror_dir\)', 
-                                self.config['mirror_dir'], path)
-        
-        log.info("mirroring %s to %s" % (channel, local_chan_dir))
-        
-        if not os.path.exists(local_chan_dir):
-            os.makedirs(local_chan_dir)
-            
-        for package in packages:
-            if self.cli_opts.verify:
-                self._slow_mirror(package, channel, local_chan_dir)                                         
-            else:
-                self._fast_mirror(package, channel, local_chan_dir)
-                    
-        # finally, create the repo
-        if run_createrepo:
-            log.info("running createrepo: %s" % local_chan_dir)
-            os.system("%s %s" % (self.config['createrepo_path'], local_chan_dir))
-        if run_yumarch:
-            log.info("running yum-arch: %s" % local_chan_dir)
-            os.system("%s %s" % (self.config['yumarch_path'], local_chan_dir))
-            
-        # clean up files that aren't in packages
-        for file in os.listdir(local_chan_dir):
-            if file not in downloaded_files:
-                log.debug("cleanup: os.remove('%s')" % file)
-                os.remove(os.path.join(local_chan_dir, file))
+        local_dir = re.sub('\%\(mirror_dir\)', self.config['mirror_dir'], path)
+        chan = RHNSatelliteChannel(label=channel, local_dir=local_dir) 
+        log.info("mirroring of %s started" % chan.label)
+        try:
+            chan.sync(verify=self.cli_opts.verify)
+        except KeyboardInterrupt, e:
+            log.warn('Caught KeyboardInterrupt => Attempting to exit clean...')
+            # remove the last file attempted
+            last_path = os.path.join(chan.local_dir, chan.attempted_files[-1])
+            if os.path.exists(last_path):
+                log.debug('cleanup: removing last attempted file %s' % last_path)
+                os.remove(last_path)
+            sys.exit(1)
+        log.info("mirroring of %s complete." % chan.label)
         
     def run(self):
         if len(self.cli_args) >= 3:
@@ -204,4 +97,9 @@ class syncCommand(CementCommand):
             for c in self.config['channels']:
                 self.mirror_channel(c, self.config['channels'][c]['path'])
         else:
-            self.mirror_channel(channel, self.config['channels'][channel]['path'])
+            if self.config['channels'].has_key(channel):
+                path = self.config['channels'][channel]['path']
+                self.mirror_channel(channel, path)
+            else:
+                print "ArgumentError => channel %s doesn't exist in the config." % channel
+                sys.exit(1)

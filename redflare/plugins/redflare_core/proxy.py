@@ -23,6 +23,7 @@ class RHNSatelliteProxy(object):
     def __init__(self):
         global namespaces, user_cache, proxy
         self.config = namespaces['global'].config
+        self.get_session()
         
     def get_session(self, use_cache=True):
         global user_cache

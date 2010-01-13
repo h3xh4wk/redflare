@@ -32,3 +32,6 @@ run_yumarch = true
 [[[rhel-x86_64-es-3]]]
 path = %(mirror_dir)/Redhat/3ES/x86_64
 run_yumarch = true
+
+[[[rackspace-rhel-x86_64-server-5-mysql-5.1]]]
+path = %(mirror_dir)/Rackspace/mysql-5.1/Redhat/5Server/x86_64
