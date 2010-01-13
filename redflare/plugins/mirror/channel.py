@@ -54,6 +54,7 @@ class RHNSatelliteChannel(object):
         self.proxy = RHNSatelliteProxy()
         self.synced_files = []
         self.attempted_files = []
+        self.modified = False
         
         # base mirror config
         self.run_createrepo = self.config.get('run_createrepo', None)
@@ -93,11 +94,11 @@ class RHNSatelliteChannel(object):
             else:
                 self._fast_sync_package(package)
     
-         # finally, create the repo
-        if len(self.synced_files) > 0 and self.run_createrepo:
+        # finally, create the repo
+        if self.modified  and self.run_createrepo:
             log.info("running createrepo: %s" % self.label)
             os.system("%s %s" % (self.config['createrepo_path'], self.local_dir))
-        if len(self.synced_files) > 0 and self.run_yumarch:
+        if self.modified > 0 and self.run_yumarch:
             log.info("running yum-arch: %s" % self.label)
             os.system("%s %s" % (self.config['yumarch_path'], self.local_dir))
             
@@ -124,6 +125,7 @@ class RHNSatelliteChannel(object):
         
         if not os.path.exists(full_path):
             package.fetch_file(full_path)
+            self.modified = True
         
         self.synced_files.append(package.file)
     
@@ -145,6 +147,7 @@ class RHNSatelliteChannel(object):
                     break
                 else:
                     package.fetch_file(full_path)
+                    self.modified = True
                     count += 1
                 if count >= 3:
                     log.error('failed to download %s/%s' % \
@@ -152,6 +155,7 @@ class RHNSatelliteChannel(object):
         else:
             # fetch the file cause it doesn't exist
             package.fetch_file(full_path)
+            self.modified = True
                     
             count = 0
             while count < 3:
