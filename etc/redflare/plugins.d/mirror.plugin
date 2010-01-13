@@ -1,0 +1,34 @@
+[mirror]
+
+mirror_dir = ./var/lib/redflare/data/mirror
+createrepo_path = /usr/bin/createrepo
+yumarch_path = /usr/bin/yum-arch
+run_createrepo = true
+run_yumarch = false
+only_latest = true
+
+[[channels]]
+
+[[[rhel-i386-server-5]]]
+path = %(mirror_dir)/Redhat/5Server/i386
+only_latest = false
+
+[[[rhel-x86_64-server-5]]]
+path = %(mirror_dir)/Redhat/5Server/x86_64
+only_latest = false
+
+[[[rhel-i386-es-4]]]
+path = %(mirror_dir)/Redhat/4ES/i386
+run_yumarch = true
+
+[[[rhel-x86_64-es-4]]]
+path = %(mirror_dir)/Redhat/4ES/x86_64
+run_yumarch = true
+
+[[[rhel-i386-es-3]]]
+path = %(mirror_dir)/Redhat/3ES/i386
+run_yumarch = true
+
+[[[rhel-x86_64-es-3]]]
+path = %(mirror_dir)/Redhat/3ES/x86_64
+run_yumarch = true

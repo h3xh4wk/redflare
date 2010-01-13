@@ -1,0 +1,25 @@
+NAME: redflare
+
+CREATOR: BJ Dierkes <wdierkes@rackspace.com>
+
+DESCRIPTION:
+
+Redflare is a Command Line Interface for the RHN Satellite Server.  Its 
+goal is to provide easy access to certain operations that make working with
+RHNSS easier.  
+
+Currently this is a young project, and features are limited.  The initial and
+primary goal of the project was to enable the ability to mirror RHN Channels
+to local Yum repositories.
+ 
+
+FEATURES:
+
+ * Ability to sync RHN mirrors to local Yum Repos
+ * Local user authentication cache
+ 
+ 
+LICENSE:
+
+The redflare is Open Source and released under the GNU GPL v3.  Please see
+the LICENSE file included with this software.

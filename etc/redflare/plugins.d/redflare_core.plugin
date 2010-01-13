@@ -1,0 +1,6 @@
+[redflare_core]
+
+# redflare_core plugin configurations
+
+# Whether or not to merge global options 
+merge_global_options = false
