@@ -63,15 +63,15 @@ class RHNSatelliteChannel(object):
         
         # per channel config
         if self.config.has_key('channels'):
-            if not self.run_createrepo:
+            if not kw.get('run_createrepo', None):
                 self.run_createrepo = self.config['channels'][self.label]\
-                    .get('run_createrepo', None)
-            if not self.run_yumarch:
+                    .get('run_createrepo', self.run_createrepo)
+            if not kw.get('run_yumarch', None):
                 self.run_yumarch = self.config['channels'][self.label]\
-                    .get('run_yumarch', None)
-            if not self.only_latest:
+                    .get('run_yumarch', self.run_yumarch)
+            if not kw.get('only_latest'):
                 self.only_latest = self.config['channels'][self.label]\
-                    .get('only_latest', None)
+                    .get('only_latest', self.only_latest)
     
         # create out local dir if missing
         if not os.path.exists(self.local_dir):
