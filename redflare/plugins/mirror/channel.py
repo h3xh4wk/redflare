@@ -95,18 +95,18 @@ class RHNSatelliteChannel(object):
                 self._fast_sync_package(package)
     
         # finally, create the repo
-        if self.modified  and self.run_createrepo:
+        if self.modified and self.run_createrepo:
             log.info("running createrepo: %s" % self.label)
-            self.synced_files.append('repodata')
             os.system("%s %s" % (self.config['createrepo_path'], self.local_dir))
-        if self.modified > 0 and self.run_yumarch:
+        if self.modified and self.run_yumarch:
             log.info("running yum-arch: %s" % self.label)
-            self.synced_files.append('headers')
             os.system("%s %s" % (self.config['yumarch_path'], self.local_dir))
             
         # clean up files that aren't in packages
         for file in os.listdir(self.local_dir):
             if file not in self.synced_files:
+                if file == 'repodata' or file == 'headers':
+                    pass
                 log.debug("cleanup: %s" % file)
                 os.remove(os.path.join(self.local_dir, file))
                 
