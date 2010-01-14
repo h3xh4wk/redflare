@@ -61,7 +61,7 @@ class RHNSatelliteChannel(object):
             self.config['lockfile_dir'], "%s.lock" % self.label)
             
         if not os.path.exists(self.config['lockfile_dir']):
-            self.config['lockfile_dir']
+            os.makedirs(self.config['lockfile_dir'])
             
         # base mirror config
         self.run_createrepo = self.config.get('run_createrepo', None)
