@@ -85,10 +85,13 @@ class syncCommand(CementCommand):
         except KeyboardInterrupt, e:
             log.warn('Caught KeyboardInterrupt => Attempting to exit clean...')
             # remove the last file attempted
-            last_path = os.path.join(chan.local_dir, chan.attempted_files[-1])
-            if os.path.exists(last_path):
-                log.debug('cleanup: removing last attempted file %s' % last_path)
-                os.remove(last_path)
+            if len(chan.attempted_files) > 0:
+                last_path = os.path.join(
+                    chan.local_dir, chan.attempted_files[-1])
+                if os.path.exists(last_path):
+                    log.debug('cleanup: removing last attempted file %s' \
+                              % last_path)
+                    os.remove(last_path)
             chan._remove_lock()
             sys.exit(1)
         log.info("mirroring of %s complete." % chan.label)
@@ -109,3 +112,21 @@ class syncCommand(CementCommand):
             else:
                 print "ArgumentError => channel %s doesn't exist in the config." % channel
                 sys.exit(1)
+    
+    def help(self):
+        print """
+Sync one channel:
+
+    # redflare mirror sync rhel-x86_64-server-5
+    
+    
+Sync all channels:
+
+    # redflare mirror sync all
+    
+    
+Verify md5sums (extremely slow, and not recommended currently)    
+
+    # redflare mirror sync rhel-x86_64-server-5 --verify
+
+"""
