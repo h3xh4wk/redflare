@@ -15,8 +15,8 @@ setup(name='redflare',
     zip_safe=False,
     install_requires=[
         "ConfigObj",
-        "cement >=0.4.3, <0.5",
-        "cement.plugins.clibasic",
+        "Cement >=0.4.3, <0.5",
+        "CementPlugins >=0.4.3, <0.5",
         ],
     setup_requires=[
         "PasteScript >= 1.7"
