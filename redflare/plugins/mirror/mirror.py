@@ -52,7 +52,7 @@ def validate_config_hook(*args, **kwargs):
     if not config:
         print("WARNING: broken hook.  missing 'config' keyword argument.")
     else:
-        required_settings = ['mirror_dir']
+        required_settings = ['mirror_dir', 'lockfile_dir']
         for s in required_settings:
             if not config.has_key(s):
                 raise CementConfigError, "config['%s'] value missing!" % s
