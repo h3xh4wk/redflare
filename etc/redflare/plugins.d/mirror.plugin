@@ -1,11 +1,19 @@
 [mirror]
 
-mirror_dir = ./var/lib/redflare/data/mirror
-lockfile_dir = ./var/lib/redflare/tmp/lock
+mirror_dir = /var/lib/redflare/data/mirror
+lockfile_dir = /var/lib/redflare/tmp/lock
 createrepo_path = /usr/bin/createrepo
 yumarch_path = /usr/bin/yum-arch
+
+# The following options are global, can be overwritten in each channel section
+
+# Whether to run createrepo, needed for EL5+
 run_createrepo = true
+
+# Legacy, needed for up2date on EL3/4
 run_yumarch = false
+
+# Only pull down and maintain the latest version of a package
 only_latest = true
 
 

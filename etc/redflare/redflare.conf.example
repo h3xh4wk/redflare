@@ -11,10 +11,10 @@ enabled_plugins = redflare_core, clibasic, mirror
 
 # these should probably be changed for production installations if you 
 # follow the FHS (and you should).
-datadir = ./var/lib/redflare/data
-tmpdir = ./var/lib/redflare/tmp
-plugin_config_dir = ./etc/redflare/plugins.d
-plugin_dir = ./var/lib/redflare/plugins.d
+datadir = /var/lib/redflare/data
+tmpdir = /var/lib/redflare/tmp
+plugin_config_dir = /etc/redflare/plugins.d
+plugin_dir = /var/lib/redflare/plugins.d
 
 
 # this is just a cosmetic option... whether to show 'loading plugin...'
@@ -25,7 +25,7 @@ plugin_dir = ./var/lib/redflare/plugins.d
 # LOGGING
 #
 # Comment out log_file line for no logging to a file.
-log_file = ./var/lib/redflare/log/redflare.log
+log_file = /var/lib/redflare/log/redflare.log
 
 # Max bytes to rotate log file on.  Comment out to not rotate log file.
 #
