@@ -12,6 +12,25 @@ Currently this is a young project, and features are limited.  The initial and
 primary goal of the project was to enable the ability to mirror RHN Channels
 to local Yum repositories.
  
+DISCLAIMER:
+
+It should be *strictly* noted that mirroring RHN channels into Yum repos is 
+for internal and restricted uses only.  At no time should said repos be made
+publicly available to any systems that do not have the appropriate 
+entitlements to those channels.  The authors and contributors of the Redflare 
+project are not responsible for misuse of the mirroring features.  In order to 
+mirror channels to Yum repos, you must have the credentials to log into the 
+Satellite server making the user of this software fully liable for any 
+distribution or copyright infringements of Red Hat software.
+
+For more information please see:
+
+ * http://www.redhat.com/legal/legal_statement.html
+ 
+
+The Redflare software, nor it's authors are associated with Red Hat, and this
+software is not a product of Red Hat.
+
 
 FEATURES:
 

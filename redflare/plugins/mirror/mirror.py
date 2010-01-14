@@ -78,6 +78,10 @@ class syncCommand(CementCommand):
         log.info("mirroring of %s started" % chan.label)
         try:
             chan.sync(verify=self.cli_opts.verify)
+        except RuntimeError, e:
+            log.error("RuntimeError => %s", e)
+            sys.exit(1)
+            
         except KeyboardInterrupt, e:
             log.warn('Caught KeyboardInterrupt => Attempting to exit clean...')
             # remove the last file attempted
@@ -85,6 +89,7 @@ class syncCommand(CementCommand):
             if os.path.exists(last_path):
                 log.debug('cleanup: removing last attempted file %s' % last_path)
                 os.remove(last_path)
+            chan._remove_lock()
             sys.exit(1)
         log.info("mirroring of %s complete." % chan.label)
         

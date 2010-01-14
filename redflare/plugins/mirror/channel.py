@@ -56,6 +56,13 @@ class RHNSatelliteChannel(object):
         self.attempted_files = []
         self.modified = False
         
+        # lock file
+        self.lock_file = os.path.join(
+            self.config['lockfile_dir'], "%s.lock" % self.label)
+            
+        if not os.path.exists(self.config['lockfile_dir']):
+            self.config['lockfile_dir']
+            
         # base mirror config
         self.run_createrepo = self.config.get('run_createrepo', None)
         self.run_yumarch = self.config.get('run_yumarch', None)
@@ -87,7 +94,21 @@ class RHNSatelliteChannel(object):
                 'channel.software.listAllPackages', self.label)
         return self.packages
     
+    def _create_lock(self):
+        log.debug('creating lock file %s' % self.lock_file)
+        if os.path.exists(self.lock_file):
+            raise RuntimeError, "lock file %s already exists" % self.lock_file
+            
+        f = open(self.lock_file, 'w')
+        f.write(str(os.getpid()))
+        f.close()
+        
+    def _remove_lock(self):
+        log.debug('removing lock file %s' % self.lock_file)
+        os.remove(self.lock_file)
+        
     def sync(self, verify=False):
+        self._create_lock()
         for package in self.get_packages():
             if verify:
                 self._slow_sync_package(package)                                         
@@ -107,6 +128,7 @@ class RHNSatelliteChannel(object):
             if file not in self.synced_files and file.endswith('.rpm'):
                 log.debug("cleanup: %s" % file)
                 os.remove(os.path.join(self.local_dir, file))
+        self._remove_lock()
                 
     def _fast_sync_package(self, package_dict):            
         # this is significantly faster
